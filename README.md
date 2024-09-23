@@ -34,3 +34,23 @@ If you want to set your identity only for a specific repository (without applyin
 git config user.name "Your Name"
 git config user.email "your.email@example.com"
 ```
+
+## GitHub Actions Components
+
+![Components](/img/image01.jpg)
+
+1. **Workflow**: Es un proceso automatizado definido en un archivo YAML. Contiene una serie de pasos que se ejecutan cuando ocurre un evento.
+
+   - Ejemplo: Un workflow que se ejecuta al hacer un push a la rama principal.
+2. **Events**: Son desencadenantes que inician la ejecución de un workflow (como un push, pull request, etc.).
+
+   - Ejemplo: on: [push] (inicia cuando se hace push a un repositorio).
+3. **Job**: Son conjuntos de pasos que se ejecutan dentro del workflow. Cada job se ejecuta en un runner separado.
+
+   - Ejemplo: Un job que compila el código y corre pruebas.
+4. **Runners**: Son máquinas que ejecutan los jobs. Pueden ser auto-hospedados o proporcionados por GitHub.
+
+   - Ejemplo: GitHub-hosted runners que ejecutan Ubuntu o Windows para compilar.
+5. **Actions**: Son comandos reutilizables dentro de un workflow. Pueden ser scripts o módulos externos.
+
+   - Ejemplo: actions/checkout@v2 para clonar el repositorio en el runner.
