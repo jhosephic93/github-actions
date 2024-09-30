@@ -1,0 +1,77 @@
+name: build and test feature branch
+
+on:
+  push:
+    branches:
+      - feature/*
+jobs:
+  build-feature:
+    runs-on: ubuntu-latest
+    steps:
+
+
+name: Deploy and Destroy to AWS
+
+on:
+  push:
+    branches:
+      - main
+      - testing
+      - develop
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'Choose action'
+        required: true
+        default: 'deploy'
+        type: choice
+        options:
+          - deploy
+
+permissions:
+  id-token: write # This is required for requesting the JWT
+  contents: read  # This is required for actions/checkout
+
+jobs:
+  build:
+    if: github.event.inputs.action == 'deploy'
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        role-to-assume: ${{ vars.AWS_ROLE_TO_ASSUME }}
+        aws-region: ${{ vars.AWS_REGION }}
+
+    - name: Login to Amazon ECR Private
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v2
+
+    - name: Set environment variable based on branch
+      id: set-env
+      run: |
+        if [ "${{ github.ref_name }}" == "main" ]; then
+          echo "DEPLOY_ENV=main" >> $GITHUB_ENV
+        elif [ "${{ github.ref_name }}" == "testing" ]; then
+          echo "DEPLOY_ENV=testing" >> $GITHUB_ENV
+        elif [ "${{ github.ref_name }}" == "develop" ]; then
+          echo "DEPLOY_ENV=develop" >> $GITHUB_ENV
+        else
+          echo "DEPLOY_ENV=default" >> $GITHUB_ENV
+        fi
+
+    - name: Build, tag, and push docker image to Amazon ECR
+      env:
+        REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        REPOSITORY: ${{ vars.ECR_NAME }}
+        IMAGE_TAG: latest
+      run: |
+        docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
+        docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
+    - name: Create ECS task definition
+      run: |
+        aws ecs register-task-definition --cli-input-json file://task-definition.json
