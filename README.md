@@ -1,5 +1,6 @@
 # Github-Actions
-
+1. Haz click derecho en **Start course** y abre el enlace en una nueva pestaña.
+   <br />[![start-course](https://user-images.githubusercontent.com/1221423/218596841-0645fe1a-4aaf-4f51-9ab3-8aa2d3fdd487.svg)](https://github.com/jhosephic93/github-actions/generate)
 ## Git Configuration
 
 This repository includes a brief overview of Git configuration files and how they adjust its behavior.
